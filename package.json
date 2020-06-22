@@ -1,0 +1,21 @@
+{
+  "name": "easyspotify",
+  "version": "0.1.2",
+  "description": "An easy-to-use wrapper for the twitch api",
+  "main": "./src/main.js",
+  "scripts": {
+    "test": "node ./tests/debug.js",
+    "postinstall": "node setup.js"
+  },
+  "author": "FlareonTheProgrammer",
+  "license": "AGPL-3.0",
+  "dependencies": {
+    "caller-path": "^3.0.0",
+    "inquirer": "^7.1.0",
+    "quick.db": "^7.1.1",
+    "unirest": "^0.6.0"
+  },
+  "devDependencies": {
+    "chalk": "^4.0.0"
+  }
+}
