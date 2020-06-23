@@ -7,7 +7,8 @@
  */
 const gme = {
     artists: "/v1/artists",
-    albums: "/v1/albums"
+    albums: "/v1/albums",
+    search: "/v1/search"
 }
 
 module.exports = {
