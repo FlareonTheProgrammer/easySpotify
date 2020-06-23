@@ -1,13 +1,14 @@
 "use strict"
-const unirest = require("unirest");
-const db = require("quick.db");
-const btoa = require('btoa');
-const flogger = require("flogger");
+import unirest, { post, get as _get } from "unirest";
+import { table } from "quick.db";
+import btoa from 'btoa';
+import { custom, error, info } from "flogger";
 
-const cData = new db.table("cData");
+const cData = new table("cData");
 const baseURL = "https://api.spotify.com";
 
-exports.cData = cData;
+const _cData = cData;
+export { _cData as cData };
 
 /**
  * Custom Authentication Error Class
@@ -37,8 +38,7 @@ class AuthError extends Error {
  * @type {Function}
  */
 async function getNewToken() {
-  await unirest
-    .post("https://accounts.spotify.com/api/token")
+  await post("https://accounts.spotify.com/api/token")
     .headers({
       "Content-Type": "application/x-www-form-urlencoded",
       "Authorization": `Basic ${btoa(`${cData.get("id")}:${cData.get("secret")}`)}`
@@ -57,7 +57,7 @@ async function getNewToken() {
         await cData.delete("token");
         await cData.set("token", response.body.access_token);
         auth = `Bearer ${cData.get("token")}`;
-        flogger.custom(
+        custom(
           "TOKEN", "lGreen",
           "SUCCESS: Got token from Spotify and stored it in the database."
         );
@@ -65,11 +65,11 @@ async function getNewToken() {
     })
     .catch((err) => {
       if (err instanceof AuthError) {
-        flogger.error(err);
+        error(err);
         throw ("Credentials provided are not valid.");
       }
       else {
-        flogger.error(err);
+        error(err);
       };
     })
 };
@@ -96,15 +96,14 @@ async function checkAuth() {
 
   try {
     if (cData.get("token") === undefined) {
-      flogger.custom(
+      custom(
         "AUTH", "yellow",
         "No token found in database. Requesting one from Spotify..."
       );
       await getNewToken();
       return;
     }
-    const resp = await unirest
-      .get(`${baseURL}/v1/browse/categories`)
+    const resp = await _get(`${baseURL}/v1/browse/categories`)
       .headers({
         Authorization: auth
       })
@@ -112,30 +111,30 @@ async function checkAuth() {
     // Okay so here's where this ugly piece of code that checks for and hopefully handles recursion
     process.env.recursionCheck = new Number(process.env.recursionCheck) + 1;
     if (process.env.recursionCheck > 1) {
-      return flogger.custom(
+      return custom(
         `RE:CURSE (${process.env.recursionCheck})`, "red", "Recursion detected. Attempting to exit loop... If successful, there will be no further output from RE:CURSE."
       );
     }
     process.env.recursionDoubleCheck =
       new Number(process.env.recursionDoubleCheck) + 1;
     if (process.env.recursionDoubleCheck > 1) {
-      return flogger.custom(
+      return custom(
         `RE:CURSE (${process.env.recursionCheck})`, "red",
         "Loop exit was unsuccessful. In the future, this will result in an an exception being thrown."
       );
     }
     // End of this disgusting code
 
-    flogger.info(`Spotify server responded with code: ${resp.code}`);
+    info(`Spotify server responded with code: ${resp.code}`);
     if (resp.code == 401) {
-      flogger.custom(
+      custom(
         "AUTH", "yellow",
         "Authentication failed. Requesting new token from Spotify..."
       );
       await getNewToken();
       return;
     } else {
-      flogger.custom(
+      custom(
         "AUTH", "lGreen",
         "Authentication successful. No need to request new token."
       );
@@ -149,7 +148,6 @@ async function checkAuth() {
 
 //* v0.1.0 (previously BETA)
 
-const { gme } = require("./res/get-endpoints");
 
 /**
  * MagicRq
@@ -178,7 +176,7 @@ class MagicRq {
       .query(queryObject)
       .send()
       .then((response) => {
-        flogger.custom(
+        custom(
           "MagicRq", "blue",
           "Response received."
         );
@@ -189,11 +187,6 @@ class MagicRq {
   // End of MagicRq Class
 }
 
-/**
- * v0.1.0 Exports
- *
- * @type {any}
- */
-exports.spotifyReq = MagicRq;
+export const spotifyReq = MagicRq;
 
-exports.authCheck = checkAuth;
+export const authCheck = checkAuth;
