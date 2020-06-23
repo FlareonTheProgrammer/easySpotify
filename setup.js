@@ -26,11 +26,16 @@ let clientInfo = [
   const beginSetup = await inquirer.prompt(setup);
   if (beginSetup.proceed === "Yes") {
     console.log("Got it. Beginning setup of easySpotify...");
+    const checks = {
+      dbInProjFolder: fs.existsSync(`./json.sqlite`),
+      dbInParentOfParentFolder: fs.existsSync("../../json.sqlite"),
+      installedInProjectFolder: fs.existsSync("../../node_modules")
+    };
     const resp = await inquirer.prompt(clientInfo);
     cData.set("id", resp.id);
     cData.set("secret", resp.secret);
     console.log("Client data file created.");
-    if (fs.existsSync(`./json.sqlite`) && !fs.existsSync("../../json.sqlite")) {
+    if (fs.existsSync(`./json.sqlite`) && !fs.existsSync("../../json.sqlite") && fs.existsSync("../../node_modules")) {
       console.log(
         "[DEBUG] \x1b[36mjson.sqlite file found in easyspotify module folder, attempting to move it...\x1b[0m"
       );
@@ -52,6 +57,8 @@ let clientInfo = [
       return console.warn(
         "[WARN] \x1b[33mjson.sqlite file found in (what is assumed to be) the root folder, refusing to overwrite it due to potential for data loss.\x1b[0m"
       );
+    } else if (fs.existsSync("../../node_modules")) {
+      return console.log("easySpotify does not seem to be installed in a node_modules folder. Returning...")
     } else {
       return console.warn("[WARN]\x1b[33m No json.sqlite file found.\x1b[0m");
     }
