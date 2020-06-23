@@ -1,8 +1,5 @@
 node_modules
 *.code-workspace
-<<<<<<< HEAD
-=======
 .vscode/
 
->>>>>>> be11210af491515428847792c872f4ecb22b6e52
 json.sqlite
