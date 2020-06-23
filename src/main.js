@@ -166,7 +166,7 @@ class MagicRq {
     } else {
       throw `"${rsrc}" isn't a valid resource or resource alias.`;
     }
-    return this;
+    return rsrc;
   };
 
   //* POST REQUESTS
