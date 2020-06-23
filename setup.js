@@ -1,4 +1,5 @@
 const flogger = require("flogger");
+flogger.setLogDir(`${__dirname}/logs`);
 const fs = require("fs");
 const inquirer = require("inquirer");
 const { cData, authCheck } = require("./src/main.js");
@@ -36,7 +37,6 @@ let confirmOverwrite = [
 
 (async function () {
   const beginSetup = await inquirer.prompt(setup);
-  flogger.setLogDir("./logs");
   if (beginSetup.proceed === "Yes") {
     flogger.log("Beginning setup of easySpotify...");
 
