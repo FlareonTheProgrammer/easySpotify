@@ -1,5 +1,5 @@
 const flogger = require("flogger");
-flogger.setLogDir(`${__dirname}/logs`);
+flogger.setLogDir("./logs");
 const fs = require("fs");
 const inquirer = require("inquirer");
 const { cData, authCheck } = require("./src/main.js");
