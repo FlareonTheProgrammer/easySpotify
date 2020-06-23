@@ -1,14 +1,13 @@
 "use strict"
-import unirest, { post, get as _get } from "unirest";
-import { table } from "quick.db";
-import btoa from 'btoa';
-import { custom, error, info } from "flogger";
+const unirest = require("unirest");
+const db = require("quick.db");
+const btoa = require('btoa');
+const flogger = require("flogger");
 
-const cData = new table("cData");
+const cData = new db.table("cData");
 const baseURL = "https://api.spotify.com";
 
-const _cData = cData;
-export { _cData as cData };
+exports.cData = cData;
 
 /**
  * Custom Authentication Error Class
@@ -38,7 +37,8 @@ class AuthError extends Error {
  * @type {Function}
  */
 async function getNewToken() {
-  await post("https://accounts.spotify.com/api/token")
+  await unirest
+    .post("https://accounts.spotify.com/api/token")
     .headers({
       "Content-Type": "application/x-www-form-urlencoded",
       "Authorization": `Basic ${btoa(`${cData.get("id")}:${cData.get("secret")}`)}`
@@ -57,19 +57,22 @@ async function getNewToken() {
         await cData.delete("token");
         await cData.set("token", response.body.access_token);
         auth = `Bearer ${cData.get("token")}`;
-        custom(
-          "TOKEN", "lGreen",
-          "SUCCESS: Got token from Spotify and stored it in the database."
+        flogger.custom(
+          {
+            title: "TOKEN",
+            color: "lGreen",
+            msg: "SUCCESS: Got token from Spotify and stored it in the database."
+          }
         );
       }
     })
     .catch((err) => {
       if (err instanceof AuthError) {
-        error(err);
+        flogger.error(err);
         throw ("Credentials provided are not valid.");
       }
       else {
-        error(err);
+        flogger.error(err);
       };
     })
 };
@@ -96,14 +99,18 @@ async function checkAuth() {
 
   try {
     if (cData.get("token") === undefined) {
-      custom(
-        "AUTH", "yellow",
-        "No token found in database. Requesting one from Spotify..."
+      flogger.custom(
+        {
+          title: "AUTH",
+          color: "yellow",
+          msg: "No token found in database. Requesting one from Spotify..."
+        }
       );
       await getNewToken();
       return;
     }
-    const resp = await _get(`${baseURL}/v1/browse/categories`)
+    const resp = await unirest
+      .get(`${baseURL}/v1/browse/categories`)
       .headers({
         Authorization: auth
       })
@@ -111,32 +118,45 @@ async function checkAuth() {
     // Okay so here's where this ugly piece of code that checks for and hopefully handles recursion
     process.env.recursionCheck = new Number(process.env.recursionCheck) + 1;
     if (process.env.recursionCheck > 1) {
-      return custom(
-        `RE:CURSE (${process.env.recursionCheck})`, "red", "Recursion detected. Attempting to exit loop... If successful, there will be no further output from RE:CURSE."
+      return flogger.custom(
+        {
+          title: `RE:CURSE (${process.env.recursionCheck})`,
+          color: "red",
+          msg: "Recursion detected. Attempting to exit loop... If successful, there will be no further output from RE:CURSE."
+        }
       );
     }
     process.env.recursionDoubleCheck =
       new Number(process.env.recursionDoubleCheck) + 1;
     if (process.env.recursionDoubleCheck > 1) {
-      return custom(
-        `RE:CURSE (${process.env.recursionCheck})`, "red",
-        "Loop exit was unsuccessful. In the future, this will result in an an exception being thrown."
+      return flogger.custom(
+        {
+          title: `RE:CURSE (${process.env.recursionCheck})`,
+          color: "red",
+          msg: "Loop exit was unsuccessful. In the future, this will result in an an exception being thrown."
+        }
       );
     }
     // End of this disgusting code
 
-    info(`Spotify server responded with code: ${resp.code}`);
+    flogger.info(`Spotify server responded with code: ${resp.code}`);
     if (resp.code == 401) {
-      custom(
-        "AUTH", "yellow",
-        "Authentication failed. Requesting new token from Spotify..."
+      flogger.custom(
+        {
+          title: "AUTH",
+          color: "yellow",
+          msg: "Authentication failed. Requesting new token from Spotify..."
+        }
       );
       await getNewToken();
       return;
     } else {
-      custom(
-        "AUTH", "lGreen",
-        "Authentication successful. No need to request new token."
+      flogger.custom(
+        {
+          title: "AUTH",
+          color: "lGreen",
+          msg: "Authentication successful. No need to request new token."
+        }
       );
       return;
     }
@@ -147,7 +167,6 @@ async function checkAuth() {
 // End of Auth Check
 
 //* v0.1.0 (previously BETA)
-
 
 /**
  * MagicRq
@@ -176,9 +195,13 @@ class MagicRq {
       .query(queryObject)
       .send()
       .then((response) => {
-        custom(
-          "MagicRq", "blue",
-          "Response received."
+        flogger.custom(
+          {
+            method: "info",
+            title: "MagicRq",
+            color: "blue",
+            msg: "Response received."
+          }
         );
         resp = response.body;
       });
@@ -187,6 +210,11 @@ class MagicRq {
   // End of MagicRq Class
 }
 
-export const spotifyReq = MagicRq;
+/**
+ * v0.1.0 Exports
+ *
+ * @type {any}
+ */
+exports.spotifyReq = MagicRq;
 
-export const authCheck = checkAuth;
+exports.authCheck = checkAuth;
