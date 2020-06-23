@@ -29,8 +29,6 @@ class AuthError extends Error {
   }
 }
 
-const clientID = cData.get("id");
-
 /**
  * Token Getter Function
  *
@@ -43,7 +41,7 @@ async function getNewToken() {
     .post("https://accounts.spotify.com/api/token")
     .headers({
       "Content-Type": "application/x-www-form-urlencoded",
-      "Authorization": `Basic ${btoa(`${clientID}:${cData.get("secret")}`)}`
+      "Authorization": `Basic ${btoa(`${cData.get("id")}:${cData.get("secret")}`)}`
     })
     .send({
       grant_type: "client_credentials",
@@ -68,7 +66,7 @@ async function getNewToken() {
     .catch((err) => {
       if (err instanceof AuthError) {
         flogger.error(err);
-        throw (err);
+        throw ("Credentials provided are not valid.");
       }
       else {
         flogger.error(err);
@@ -108,8 +106,7 @@ async function checkAuth() {
     const resp = await unirest
       .get(`${baseURL}/v1/browse/categories`)
       .headers({
-        Authorization: auth,
-        "Client-ID": clientID,
+        Authorization: auth
       })
       .send();
     // Okay so here's where this ugly piece of code that checks for and hopefully handles recursion
@@ -202,3 +199,5 @@ class MagicRq {
  * @type {any}
  */
 exports.spotifyReq = MagicRq;
+
+exports.authCheck = checkAuth;
