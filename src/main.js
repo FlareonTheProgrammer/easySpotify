@@ -161,12 +161,8 @@ class MagicRq {
   //* GET REQUESTS
   get = (rsrc) => {
     this.method = "get";
-    if (JSON.stringify(gme).includes(rsrc)) {
-      this.resource = rsrc;
-    } else {
-      throw `"${rsrc}" isn't a valid resource or resource alias.`;
-    }
-    return rsrc;
+    this.resource = rsrc;
+    return this;
   };
 
   //* POST REQUESTS
