@@ -2,7 +2,9 @@
 const unirest = require("unirest");
 const db = require("quick.db");
 const btoa = require('btoa');
+
 const flogger = require("flogger");
+flogger.setLogDir(`${__dirname}../logs/`);
 
 const cData = new db.table("cData");
 const baseURL = "https://api.spotify.com";
