@@ -11,6 +11,7 @@ let setup = [
     choices: ["Yes", "No"],
   },
 ];
+
 let clientInfo = [
   {
     type: "input",
@@ -23,6 +24,7 @@ let clientInfo = [
     message: "Please enter the client secret of your Spotify application.",
   },
 ];
+
 let confirmOverwrite = [
   {
     type: "list",
@@ -31,8 +33,10 @@ let confirmOverwrite = [
     choices: ["Yes", "No"],
   }
 ];
+
 (async function () {
   const beginSetup = await inquirer.prompt(setup);
+
   if (beginSetup.proceed === "Yes") {
     flogger.log("Beginning setup of easySpotify...");
 
@@ -98,6 +102,9 @@ let confirmOverwrite = [
           } catch (err) {
             flogger.error(`Failed to move json.sqlite. Reason: ${err}`);
           }
+        }
+        else if (overwrite === "No") {
+          flogger.log("User asked not to overwrite file, no more can be done.");
         }
         break;
     }
