@@ -1,6 +1,10 @@
 const { spotifyReq } = require("../src/main");
+
 const flogger = require("flogger");
+flogger.setLogDir(`${__dirname}/logs`);
+
 spotify = new spotifyReq();
+
 (async function () {
   flogger.log("v0.1.0 Request")
   flogger.log(
