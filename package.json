@@ -8,6 +8,9 @@
     "postinstall": "node setup.js"
   },
   "author": "FlareonTheProgrammer",
+  "repository": {
+    "url": "https://github.com/FlareonTheProgrammer/easyspotify#ts-rewrite.git"
+  },
   "license": "AGPL-3.0",
   "dependencies": {
     "btoa": "^1.2.1",

@@ -10,7 +10,3 @@ const gme = {
     albums: "/v1/albums",
     search: "/v1/search"
 }
-
-module.exports = {
-    gme: gme
-}
